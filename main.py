@@ -11,6 +11,7 @@ def initialize_data():
             json.dump([], file)
 
 def main():
+    initialize_data()
     while True:
         print("\n=============================")
         print("🔥 HABIT STREAK TRACKER 🔥")
