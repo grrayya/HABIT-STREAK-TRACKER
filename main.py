@@ -32,5 +32,18 @@ def main():
         else:
             print("Invalid choice. Please enter 1, 2, or 3.")
 
+if choice == '1':
+            with open(DATA_FILE, "r") as file:
+                data = json.load(file)
+            
+            today = str(date.today())
+            if today not in data:
+                data.append(today)
+                with open(DATA_FILE, "w") as file:
+                    json.dump(data, file)
+                print(f"\nSuccess! Habit logged for {today}.")
+            else:
+                print("\nYou already logged your habit today!")
+
 if __name__ == "__main__":
     main()
