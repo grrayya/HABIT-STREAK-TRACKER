@@ -1,3 +1,15 @@
+import json
+import os
+from datetime import date
+
+DATA_FILE = "data.json"
+
+def initialize_data():
+    if not os.path.exists(DATA_FILE):
+        # Creates an empty list in the JSON file if it doesn't exist
+        with open(DATA_FILE, "w") as file:
+            json.dump([], file)
+
 def main():
     while True:
         print("\n=============================")
