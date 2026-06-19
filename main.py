@@ -35,8 +35,10 @@ def main():
             else:
                 print("\nYou already logged your habit today!")
                 
-        elif choice == '2':
-            print("Viewing streak... (Logic coming soon)")
+       elif choice == '2':
+            with open(DATA_FILE, "r") as file:
+                data = json.load(file)
+            print(f"\n🔥 You have logged {len(data)} total days! Keep it up!")
             
         elif choice == '3':
             print("Exiting tracker. Keep up the good work!")
