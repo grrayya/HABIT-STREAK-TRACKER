@@ -23,16 +23,6 @@ def main():
         choice = input("\nChoose an option: ")
         
         if choice == '1':
-            print("Logging progress... (Logic coming soon)")
-        elif choice == '2':
-            print("Viewing streak... (Logic coming soon)")
-        elif choice == '3':
-            print("Exiting tracker. Keep up the good work!")
-            break
-        else:
-            print("Invalid choice. Please enter 1, 2, or 3.")
-
-if choice == '1':
             with open(DATA_FILE, "r") as file:
                 data = json.load(file)
             
@@ -44,6 +34,16 @@ if choice == '1':
                 print(f"\nSuccess! Habit logged for {today}.")
             else:
                 print("\nYou already logged your habit today!")
+                
+        elif choice == '2':
+            print("Viewing streak... (Logic coming soon)")
+            
+        elif choice == '3':
+            print("Exiting tracker. Keep up the good work!")
+            break
+            
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.")
 
 if __name__ == "__main__":
     main()
