@@ -1,11 +1,11 @@
 import json
 import os
-from datetime import date
+import random
+from datetime import date, datetime, timedelta
 
 DATA_FILE = "data.json"
 
 def load_data():
-    """Loads data, creating a new dictionary if the file doesn't exist."""
     if not os.path.exists(DATA_FILE):
         return {}
     with open(DATA_FILE, "r") as file:
@@ -15,25 +15,68 @@ def load_data():
             return {}
 
 def save_data(data):
-    """Saves the dictionary back to the JSON file with nice formatting."""
     with open(DATA_FILE, "w") as file:
-        # indent=4 makes the JSON file readable to humans!
         json.dump(data, file, indent=4) 
+
+def calculate_streak(dates_list):
+    """Calculates the current consecutive day streak."""
+    if not dates_list:
+        return 0
+        
+    # Convert string dates back to datetime objects and sort them
+    date_objs = sorted([datetime.strptime(d, "%Y-%m-%d").date() for d in set(dates_list)])
+    
+    today = date.today()
+    current_streak = 0
+    
+    # If the last logged day isn't today or yesterday, the streak is broken (0)
+    if date_objs[-1] != today and date_objs[-1] != (today - timedelta(days=1)):
+        return 0
+        
+    # Start checking backwards from the most recent logged date
+    check_date = date_objs[-1]
+    
+    while check_date in date_objs:
+        current_streak += 1
+        check_date -= timedelta(days=1)
+        
+    return current_streak
+
+def hype(data):
+    """Checks streaks on startup and provides positive reinforcement."""
+    if not data:
+        print("\n[ Welcome to the tracker! Time to build some new habits GIRLLLLL. ]")
+        return
+
+    best_habit = None
+    best_streak = 0
+
+    for habit, dates in data.items():
+        streak = calculate_streak(dates)
+        if streak > best_streak:
+            best_streak = streak
+            best_habit = habit
+
+    print("\n=============================")
+    if best_streak >= 7:
+        print(f"🔥 DAMN GIRL You have a {best_streak}-day streak going for '{best_habit}'! You completely ate that up.")
+    elif best_streak >= 3:
+        print(f"✨OOOOOOOOOOO You're on a {best_streak}-day streak for '{best_habit}'. Keep the momentum going!")
+    elif best_streak > 0:
+        print(f"🌱 Off to a solid start! {best_streak} days in a row for '{best_habit}'. Let's lock in mandem.")
+    else:
+        print("👀 Streaks are looking a little quiet... perfect day to start a new one!")
+    print("=============================")
+
 
 def main():
     data = load_data()
     
-    # Safety Check: If the old data was a simple list, convert it to a dictionary 
-    # so the new code doesn't break when reading your old saves.
-    if isinstance(data, list):
-        data = {"General Habit": data}
-        save_data(data)
+    # The new hype welcome screen!
+    hype(data)
 
     while True:
-        print("\n=============================")
-        print("🔥 MULTI-HABIT TRACKER 🔥")
-        print("=============================")
-        print("1. Log a habit for today")
+        print("\n1. Log a habit for today")
         print("2. View streaks for all habits")
         print("3. Add a new habit to track")
         print("4. Exit")
@@ -41,7 +84,7 @@ def main():
         try:
             choice = input("\nChoose an option: ").strip()
             if choice not in ['1', '2', '3', '4']:
-                raise ValueError("Error: Please enter a valid number (1-4).")
+                raise ValueError("Error: Please enter a valid number.")
         except ValueError as e:
             print(f"\n{e}")
             continue
@@ -51,8 +94,6 @@ def main():
                 print("\nYou aren't tracking any habits yet! Add one first (Option 3).")
                 continue
             
-            print("\nWhich habit did you complete?")
-            # Create a numbered list of the habits
             habits = list(data.keys())
             for i, habit in enumerate(habits, 1):
                 print(f"{i}. {habit}")
@@ -66,11 +107,14 @@ def main():
                 selected_habit = habits[habit_idx]
                 today = str(date.today())
                 
-                # Check if today is already in the list for this specific habit
                 if today not in data[selected_habit]:
                     data[selected_habit].append(today)
                     save_data(data)
-                    print(f"\nSuccess! Logged '{selected_habit}' for {today}.")
+                    
+                    # Positive reinforcement on logging!
+                    new_streak = calculate_streak(data[selected_habit])
+                    hype_phrases = ["Ate it up!", "Absolute perfection.", "No days off!", "Hehe ahahah good job!"]
+                    print(f"\nSuccess! Logged '{selected_habit}'. Current Streak: {new_streak} days. {random.choice(hype_phrases)}")
                 else:
                     print(f"\nYou already logged '{selected_habit}' today!")
             except ValueError:
@@ -83,12 +127,13 @@ def main():
             
             print("\n📊 CURRENT STREAKS:")
             for habit, dates in data.items():
-                print(f"- {habit}: {len(dates)} total days logged")
+                streak = calculate_streak(dates)
+                total_days = len(dates)
+                print(f"- {habit}: {streak} day active streak ({total_days} total days logged)")
                 
         elif choice == '3':
             new_habit = input("\nEnter the name of the new habit: ").strip()
             if new_habit and new_habit not in data:
-                # Create a new empty list for the new habit
                 data[new_habit] = []
                 save_data(data)
                 print(f"\nAdded '{new_habit}' to your tracker!")
@@ -98,7 +143,7 @@ def main():
                 print("\nHabit name cannot be empty.")
                 
         elif choice == '4':
-            print("\nExiting tracker. Keep up the good work ate it up!")
+            print("\nExiting tracker. Stay consistent!")
             break
 
 if __name__ == "__main__":
